@@ -1,78 +1,55 @@
-function doMerge(arr, left, middleVal, right)
+function mergeSort(array)
+    println("Splititng ", array)
 
-    sizeArrayOne = middleVal - left + 1
-    sizeArrayTwo = right - middleVal
+    # sortedArray = zeros(Int64, length(array))
 
-    println(sizeArrayOne)
-    println(sizeArrayTwo)
+    if length(array) > 1
+        #calculate middle value with integer division
+        mid = div(length(array), 2)
+        println(mid)
+        leftArray = array[1:mid]
+        rightArray = array[mid+1:length(array)]
 
-    LeftArray = zeros(Int64, sizeArrayOne)
-    RightArray = zeros(Int64, sizeArrayTwo)
+        println(leftArray)
+        println(rightArray)
 
-    for i in collect(Int64, 1:sizeArrayOne)
-        LeftArray[i] = arr[left + i]
-    end
+        mergeSort(leftArray)
+        mergeSort(rightArray)
 
-    for i in collect(Int64, 1:sizeArrayTwo)
-        RightArray[i] = arr[middle + 1 + i]
-    end
+        i = 1
+        j = 1
+        k = 1
 
-    i = 1
-    j = 1
-    k = left
+        while i <= length(leftArray) && j <= length(rightArray)
+                if leftArray[i] < rightArray[j]
+                        array[k] = leftArray[i]
+                        i += 1
+                else
+                        array[k] = rightArray[j]
+                        j += 1
+                end
 
-    while i < sizeArrayOne + 1 && j < sizeArrayTwo + 1
+                k += 1
 
-        if LeftArray[i] <= RightArray[j]
-            arr[k] = LeftArray[i]
-            i += 1
-        else
-            arr[k] = RightArray[j]
-            j += 1
         end
 
-        k += 1
+        while i <= length(leftArray)
+                array[k] = leftArray[i]
+                i += 1
+                k += 1
+        end
+
+        while j <= length(rightArray)
+                array[k] = rightArray[j]
+                j += 1
+                k += 1
+        end
+
+        println("Merging ", array)
+
     end
-
-    while i < sizeArrayOne + 1
-        arr[k] = LeftArray[i]
-        i += 1
-        k += 1
-    end
-
-    while i < sizeArrayTwo + 1
-        arr[k] = RightArray[i]
-        j += 1
-        k += 1
-    end
-
-    return arr
-
-end
-
-function mergesort(arr, left, right)
-
-    if right > left
-        middleVal = ceil((left + right) / 2)
-
-        # println(typeof(middleVal))
-        # println(middleVal)
-        # println(left)
-        # println(right)
-
-        middleVal = convert(Int64, middleVal)
-
-        mergesort(arr, left, middleVal)
-        mergesort(arr, middleVal + 1, right)
-
-        doMerge(arr, left, middleVal, right)
-    end
-
 end
 
 arr = [38, 27, 43, 3, 9, 82, 10]
-println("Given: ", arr)
 
-# println(typeof(length(arr)))
-
-print(mergesort(arr, 1, convert(Int64, length(arr))))
+mergeSort(arr)
