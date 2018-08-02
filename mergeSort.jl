@@ -1,20 +1,20 @@
+function mergeSort(array)
+    println("Splititng ", array)
 
+    # sortedArray = zeros(Int64, length(array))
 
-@everywhere function mergeSort(array)
     if length(array) > 1
         #calculate middle value with integer division
         mid = div(length(array), 2)
+        println(mid)
         leftArray = array[1:mid]
         rightArray = array[mid+1:length(array)]
 
-        left = mergeSort(leftArray)
-        right = mergeSort(rightArray)
+        println(leftArray)
+        println(rightArray)
 
-        # println(typeof(left))
-        #
-        # exit()
-        remotecall_fetch(mergeSort(leftArray), wPool)
-        remotecall_fetch(mergeSort(rightArray), wPool)
+        mergeSort(leftArray)
+        mergeSort(rightArray)
 
         i = 1
         j = 1
@@ -28,7 +28,9 @@
                         array[k] = rightArray[j]
                         j += 1
                 end
+
                 k += 1
+
         end
 
         while i <= length(leftArray)
@@ -42,24 +44,12 @@
                 j += 1
                 k += 1
         end
-    end
 
+        println("Merging ", array)
+
+    end
 end
 
-# function createData(size, seed)
-#         rng = MersenneTwister(seed);
-#         array = rand(rng, size)
-#
-#         return array
-# end
+arr = [38, 27, 43, 3, 9, 82, 10]
 
-addprocs(10)
-
-wPool = CachingPool(workers())
-
-rng = MersenneTwister(1234);
-arr = rand(rng, 100)
-
-# arr = createData(2000000, 1234)
-
-@time sorted = mergeSort(arr)
+mergeSort(arr)
