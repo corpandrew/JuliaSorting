@@ -1,26 +1,23 @@
+using DistributedArrays
 
-
-@everywhere function mergeSort(array)
+function mergeSort(array)
     if length(array) > 1
         #calculate middle value with integer division
         mid = div(length(array), 2)
         leftArray = array[1:mid]
         rightArray = array[mid+1:length(array)]
 
-        left = mergeSort(leftArray)
-        right = mergeSort(rightArray)
-
-        # println(typeof(left))
-        #
-        # exit()
-        remotecall_fetch(mergeSort(leftArray), wPool)
-        remotecall_fetch(mergeSort(rightArray), wPool)
+        mergeSort(leftArray)
+        mergeSort(rightArray)
 
         i = 1
         j = 1
         k = 1
 
-        while i <= length(leftArray) && j <= length(rightArray)
+        Threads.@threads for a in collect(1:max(length(leftArray), length(rightArray)) + 1)# i <= length(leftArray) && j <= length(rightArray)
+                if i > length(leftArray) || j > length(rightArray)
+                        break
+                end
                 if leftArray[i] < rightArray[j]
                         array[k] = leftArray[i]
                         i += 1
@@ -31,6 +28,8 @@
                 k += 1
         end
 
+        println("leftArray: ", length(leftArray), " rightArray: ", length(rightArray))
+
         while i <= length(leftArray)
                 array[k] = leftArray[i]
                 i += 1
@@ -39,11 +38,12 @@
 
         while j <= length(rightArray)
                 array[k] = rightArray[j]
+                println("K = ", k, " J = ", j)
                 j += 1
                 k += 1
         end
     end
-
+    return array
 end
 
 # function createData(size, seed)
@@ -53,13 +53,23 @@ end
 #         return array
 # end
 
-addprocs(10)
-
-wPool = CachingPool(workers())
+# addprocs(2)
 
 rng = MersenneTwister(1234);
-arr = rand(rng, 100)
+
+SIZE = 10
+
+arr = rand(rng, SIZE)
 
 # arr = createData(2000000, 1234)
 
-@time sorted = mergeSort(arr)
+println(arr, "\n")
+
+#distribute arr of one dimension to all procs
+distribute(arr)
+
+@time mergeSort(arr)
+
+sorted = localpart(arr)
+
+println(sorted, "\n")
